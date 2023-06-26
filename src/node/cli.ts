@@ -1,6 +1,6 @@
 import cac from "cac";
-import { create } from "domain";
 import { createDevServer } from "./dev";
+import { build } from "./build";
 
 const cli = cac("island").version("0.0.1").help();
 
@@ -12,7 +12,7 @@ cli.command("dev [root]", "start dev server").action(async (root) => {
 });
 
 cli.command("build [root]", "build in pro").action(async (root) => {
-  console.log("build", root);
+  await build(root);
 });
 
 cli.parse();
