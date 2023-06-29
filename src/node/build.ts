@@ -52,6 +52,9 @@ export async function renderPage(
   clientBundle: RollupOutput
 ) {
   const appHtml = render();
+  const clientChunk = clientBundle.output.find(
+    (chunk) => chunk.type === "chunk" && chunk.isEntry === true
+  );
   const html = `
   <!DOCTYPE html>
 <html>
@@ -63,6 +66,7 @@ export async function renderPage(
   </head>
   <body>
     <div id="root">${appHtml}</div>
+    <script src="/${clientChunk.fileName}" type="module"></script>
   </body>
 </html>`.trim();
   await fs.writeFile(join(root, "build", "index.html"), html);
