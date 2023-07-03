@@ -37,7 +37,7 @@ export async function bundle(root: string) {
 
 export async function build(root: string) {
   // 1.bundle ———— 打包server端、client端
-  const [clientBundle, serverBundle] = await bundle(root);
+  const [clientBundle] = await bundle(root);
   // 2.引入 server-entry模块
   const serverEntryPath = join(root, '.temp', 'ssr-entry.js');
   // 3.服务端渲染，产出html

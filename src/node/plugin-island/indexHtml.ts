@@ -22,7 +22,7 @@ export function pluginIndexHtml(): Plugin {
     },
     configureServer(server) {
       return () => {
-        server.middlewares.use(async (req, res, next) => {
+        server.middlewares.use(async (req, res) => {
           // 1.读取到template.html文件内容
           let content = await readFile(DEFAULT_TEMPLATE_ROOT, 'utf-8');
           // 热更新
