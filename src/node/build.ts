@@ -1,33 +1,33 @@
-import { InlineConfig, build as viteBuild } from "vite";
-import { CLIENT_ENTRY_PATH, SERVER_ENTRY_PATH } from "./constants";
-import { join } from "path";
-import type { RollupOutput } from "rollup";
-import fs from "fs-extra";
+import { InlineConfig, build as viteBuild } from 'vite';
+import { CLIENT_ENTRY_PATH, SERVER_ENTRY_PATH } from './constants';
+import { join } from 'path';
+import type { RollupOutput } from 'rollup';
+import fs from 'fs-extra';
 
 export async function bundle(root: string) {
   try {
-    console.log("build client + server");
+    console.log('build client + server');
     const resolveViteConfig = (isServer: boolean): InlineConfig => {
       return {
-        mode: "production",
+        mode: 'production',
         root,
         build: {
-          outDir: isServer ? ".temp" : "build",
+          outDir: isServer ? '.temp' : 'build',
           ssr: isServer,
           rollupOptions: {
             input: isServer ? SERVER_ENTRY_PATH : CLIENT_ENTRY_PATH,
             output: {
-              format: isServer ? "cjs" : "esm",
-            },
-          },
-        },
+              format: isServer ? 'cjs' : 'esm'
+            }
+          }
+        }
       };
     };
     const clientBuild = () => viteBuild(resolveViteConfig(false));
     const serverBuild = () => viteBuild(resolveViteConfig(true));
     const [clientBundle, serverBundle] = await Promise.all([
       clientBuild(),
-      serverBuild(),
+      serverBuild()
     ]);
     return [clientBundle, serverBundle];
   } catch (error) {
@@ -38,9 +38,8 @@ export async function bundle(root: string) {
 export async function build(root: string) {
   // 1.bundle ———— 打包server端、client端
   const [clientBundle, serverBundle] = await bundle(root);
-  debugger;
   // 2.引入 server-entry模块
-  const serverEntryPath = join(root, ".temp", "ssr-entry.js");
+  const serverEntryPath = join(root, '.temp', 'ssr-entry.js');
   // 3.服务端渲染，产出html
   const { render } = await import(serverEntryPath);
   await renderPage(root, render, clientBundle);
@@ -53,7 +52,7 @@ export async function renderPage(
 ) {
   const appHtml = render();
   const clientChunk = clientBundle.output.find(
-    (chunk) => chunk.type === "chunk" && chunk.isEntry === true
+    (chunk) => chunk.type === 'chunk' && chunk.isEntry === true
   );
   const html = `
   <!DOCTYPE html>
@@ -69,6 +68,6 @@ export async function renderPage(
     <script src="/${clientChunk.fileName}" type="module"></script>
   </body>
 </html>`.trim();
-  await fs.writeFile(join(root, "build", "index.html"), html);
-  await fs.remove(join(root, ".temp"));
+  await fs.writeFile(join(root, 'build', 'index.html'), html);
+  await fs.remove(join(root, '.temp'));
 }
